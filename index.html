@@ -107,23 +107,45 @@
     .sacrament-card h3 { margin-bottom: 10px; font-size: 1.3rem; transition: var(--transition); }
     .sacrament-card p { font-size: 0.95rem; color: var(--color-text); transition: var(--transition); }
 
-    /* ===== Настоятель (тёмный фон) ===== */
-    .priest-section { background: linear-gradient(135deg, var(--color-burgundy-dark) 0%, var(--color-burgundy) 100%); color: var(--color-cream); }
-    .priest-section .section-title h2 { color: var(--color-cream); }
-    .priest-section .section-title::after { background: var(--color-gold); }
-    .priest-card { 
-        max-width: 700px; 
-        margin: 0 auto; 
-        background: rgba(255, 255, 255, 0.08); 
-        padding: 40px; 
-        border-radius: 8px; 
-        text-align: center; 
-        border: 1px solid var(--color-gold);
+    /* ===== НАСТОЯТЕЛЬ (СВЕТЛЫЙ ФОН) ===== */
+    .priest-card {
+        max-width: 700px;
+        margin: 0 auto;
+        background: white;
+        padding: 40px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: var(--shadow);
+        border-top: 4px solid var(--color-gold);
     }
-    .priest-photo { width: 180px; height: 180px; border-radius: 50%; background: var(--color-gold); margin: 0 auto 25px; display: flex; align-items: center; justify-content: center; font-size: 5rem; color: var(--color-burgundy-dark); border: 4px solid var(--color-gold); }
-    .priest-card h3 { color: var(--color-gold); font-size: 1.8rem; margin-bottom: 10px; }
-    .priest-card .title { font-style: italic; color: var(--color-gold-light); margin-bottom: 20px; font-size: 1.1rem; }
-    .priest-card p { margin-bottom: 15px; color: var(--color-cream); }
+    .priest-photo {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: var(--color-gold);
+        margin: 0 auto 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        color: var(--color-burgundy-dark);
+        border: 4px solid var(--color-gold);
+    }
+    .priest-card h3 {
+        color: var(--color-burgundy);
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+    .priest-card .title {
+        font-style: italic;
+        color: var(--color-text-light);
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+    }
+    .priest-card p {
+        margin-bottom: 15px;
+        color: var(--color-text);
+    }
 
     .donation-box { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: var(--shadow); text-align: center; }
     .donation-box p { margin-bottom: 20px; font-size: 1.05rem; }
@@ -315,8 +337,8 @@
     </div>
 </section>
 
-<!-- ===== НАСТОЯТЕЛЬ (ТЁМНЫЙ ФОН) ===== -->
-<section id="priest" class="priest-section">
+<!-- ===== НАСТОЯТЕЛЬ (СВЕТЛЫЙ ФОН) ===== -->
+<section id="priest">
     <div class="container">
         <div class="section-title"><h2>Настоятель храма</h2></div>
         <div class="priest-card">
@@ -459,9 +481,6 @@
 const SUPABASE_URL = 'https://xxmnlsmsywbupemdljvf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_zqgd2JBxowjJY3CIatantw_zlgRfkK5';
 
-// =========================================================
-//   ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// =========================================================
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -497,8 +516,7 @@ async function supabaseRequest(endpoint, options = {}) {
             return { success: true };
         }
 
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch (e) {
         console.error('❌ Ошибка запроса:', e);
         throw e;
@@ -512,7 +530,6 @@ async function getSchedule() {
     try {
         return await supabaseRequest('schedule?order=id.asc');
     } catch (e) {
-        console.error('Ошибка загрузки расписания:', e);
         return [];
     }
 }
@@ -544,7 +561,7 @@ async function deleteSchedule(id) {
 }
 
 // =========================================================
-//   ОТРИСОВКА РАСПИСАНИЯ НА САЙТЕ
+//   ОТРИСОВКА РАСПИСАНИЯ
 // =========================================================
 async function renderSchedulePublic() {
     const container = document.getElementById('scheduleContainer');
@@ -578,74 +595,41 @@ async function renderSchedulePublic() {
 // =========================================================
 //   АДМИН-ПАНЕЛЬ
 // =========================================================
-const ADMIN_CREDENTIALS = {
-    username: 'admin',
-    password: 'korovino2026'
-};
-
+const ADMIN_CREDENTIALS = { username: 'admin', password: 'korovino2026' };
 let isAdmin = false;
 
-function loginAdmin(username, password) {
-    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-        isAdmin = true;
-        return true;
-    }
-    return false;
-}
-
-function logoutAdmin() {
-    isAdmin = false;
-}
-
-function openModal(id) {
-    document.getElementById(id).classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
-    document.body.style.overflow = '';
-}
+function openModal(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow = ''; }
 
 function openLoginModal() {
-    if (isAdmin) {
-        openAdminPanel();
-        return;
-    }
+    if (isAdmin) { openAdminPanel(); return; }
     document.getElementById('loginForm').reset();
     document.getElementById('loginError').classList.remove('active');
     openModal('loginModal');
-}
-
-function openAdminPanel() {
-    if (!isAdmin) {
-        openLoginModal();
-        return;
-    }
-    document.getElementById('adminUsername').textContent = 'admin';
-    renderDashboard();
-    renderScheduleList();
-    openModal('adminModal');
 }
 
 document.getElementById('loginForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
-    const errorEl = document.getElementById('loginError');
-
-    if (loginAdmin(username, password)) {
-        errorEl.classList.remove('active');
+    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+        isAdmin = true;
+        document.getElementById('loginError').classList.remove('active');
         closeModal('loginModal');
         openAdminPanel();
     } else {
-        errorEl.classList.add('active');
+        document.getElementById('loginError').classList.add('active');
     }
 });
 
-function logout() {
-    logoutAdmin();
-    closeModal('adminModal');
+function logout() { isAdmin = false; closeModal('adminModal'); }
+
+function openAdminPanel() {
+    if (!isAdmin) { openLoginModal(); return; }
+    document.getElementById('adminUsername').textContent = 'admin';
+    renderDashboard();
+    renderScheduleList();
+    openModal('adminModal');
 }
 
 document.querySelectorAll('.admin-tab').forEach(tab => {
@@ -661,9 +645,7 @@ async function renderDashboard() {
     try {
         const schedule = await getSchedule();
         document.getElementById('statSchedule').textContent = schedule ? schedule.length : 0;
-    } catch (e) {
-        console.error('Ошибка дашборда:', e);
-    }
+    } catch (e) {}
 }
 
 // =========================================================
@@ -704,7 +686,6 @@ function openScheduleForm(schedule = null) {
     document.getElementById('scheduleForm').reset();
     document.getElementById('scheduleId').value = '';
     document.getElementById('scheduleFormTitle').textContent = 'Добавить блок расписания';
-
     if (schedule) {
         document.getElementById('scheduleId').value = schedule.id;
         document.getElementById('scheduleTitle').value = schedule.title;
@@ -734,7 +715,7 @@ async function deleteScheduleItem(id) {
         renderDashboard();
         alert('Расписание удалено!');
     } catch (e) {
-        alert('Ошибка удаления расписания: ' + e.message);
+        alert('Ошибка удаления: ' + e.message);
     }
 }
 
@@ -771,7 +752,7 @@ document.getElementById('scheduleForm').addEventListener('submit', async (e) => 
         renderDashboard();
         alert('Расписание сохранено!');
     } catch (e) {
-        alert('Ошибка сохранения расписания: ' + e.message);
+        alert('Ошибка сохранения: ' + e.message);
     }
 });
 
