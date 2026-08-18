@@ -193,8 +193,20 @@
     .contact-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
     .contact-item .icon { font-size: 1.5rem; color: var(--color-gold); min-width: 30px; }
     .contact-item strong { display: block; color: var(--color-burgundy); margin-bottom: 3px; }
-    .map-placeholder { background: linear-gradient(135deg, var(--color-cream-dark) 0%, var(--color-cream) 100%); border-radius: 8px; min-height: 400px; display: flex; align-items: center; justify-content: center; flex-direction: column; border: 2px dashed var(--color-gold); text-align: center; padding: 20px; }
-    .map-placeholder .icon { font-size: 4rem; color: var(--color-burgundy); margin-bottom: 15px; }
+    
+    /* Карта */
+    .map-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        min-height: 450px;
+    }
+    .map-container iframe {
+        width: 100%;
+        height: 450px;
+        border: none;
+    }
 
     /* ===== Футер ===== */
     footer { background: var(--color-burgundy-dark); color: var(--color-cream); padding: 40px 0 20px; text-align: center; }
@@ -333,14 +345,7 @@
 
     .badge { display: inline-block; background: var(--color-burgundy); color: var(--color-cream); padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; margin-left: 5px; }
     .empty-state { text-align: center; padding: 40px 20px; color: var(--color-text-light); font-style: italic; }
-
-    .loading {
-        text-align: center;
-        padding: 40px;
-        color: var(--color-text-light);
-        font-style: italic;
-        grid-column: 1 / -1;
-    }
+    .loading { text-align: center; padding: 40px; color: var(--color-text-light); font-style: italic; grid-column: 1 / -1; }
 
     /* ===== Адаптивность ===== */
     @media (max-width: 768px) {
@@ -357,6 +362,7 @@
         .admin-content { padding: 20px; }
         .admin-tab { padding: 10px 12px; font-size: 0.85rem; }
         .modal { padding: 25px; }
+        .map-container iframe { height: 300px; }
     }
 </style>
 </head>
@@ -522,21 +528,13 @@
                 <div class="contact-item"><div class="icon">✝</div><div><strong>Настоятель</strong>Иерей Александр Колесников<br><em>(Колесников Александр Юрьевич)</em></div></div>
                 <div class="contact-item"><div class="icon">📞</div><div><strong>Телефон</strong><a href="tel:+79228758788">8 922 875 87 88</a><br><small style="color:var(--color-text-light);">Звонить в часы, удобные для настоятеля</small></div></div>
                 <div class="contact-item"><div class="icon">⛪</div><div><strong>Епархиальная принадлежность</strong>Московский Патриархат,<br>Бузулукская епархия</div></div>
-                
-                <form class="contact-form" id="contactForm" style="margin-top:25px;">
-                    <h3 style="margin-top:20px; margin-bottom:15px;">Написать в храм</h3>
-                    <input type="text" name="name" placeholder="Ваше имя" required style="width:100%; padding:10px 15px; margin-bottom:15px; border:1px solid var(--color-cream-dark); border-radius:4px; font-family:inherit; font-size:1rem; background:var(--color-cream);">
-                    <input type="tel" name="phone" placeholder="Телефон" style="width:100%; padding:10px 15px; margin-bottom:15px; border:1px solid var(--color-cream-dark); border-radius:4px; font-family:inherit; font-size:1rem; background:var(--color-cream);">
-                    <textarea name="message" placeholder="Ваше сообщение или вопрос" required style="width:100%; padding:10px 15px; margin-bottom:15px; border:1px solid var(--color-cream-dark); border-radius:4px; font-family:inherit; font-size:1rem; background:var(--color-cream); min-height:100px; resize:vertical;"></textarea>
-                    <button type="submit" class="btn">Отправить</button>
-                </form>
             </div>
 
-            <div class="map-placeholder">
-                <div class="icon">🗺</div>
-                <h3>Мы на карте</h3>
-                <p>с. Коровино, Бугурусланский район,<br>Оренбургская область</p>
-                <p style="margin-top:15px; font-size:0.9rem; color:var(--color-text-light);">Здесь можно разместить карту Яндекс или Google.</p>
+            <div class="map-container">
+                <iframe 
+                    src="https://yandex.ru/map-widget/v1/?ll=53.500000%2C53.500000&z=13&l=map&pt=53.500000%2C53.500000&whatshere%5Bpoint%5D=53.500000%2C53.500000&whatshere%5Bzoom%5D=13"
+                    allowfullscreen>
+                </iframe>
             </div>
         </div>
     </div>
@@ -558,7 +556,7 @@
     </div>
 </footer>
 
-<!-- ===== МОДАЛЬНОЕ ОКНО ВХОДА ===== -->
+<!-- ===== МОДАЛЬНЫЕ ОКНА ===== -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal">
         <button class="modal-close" onclick="closeModal('loginModal')">×</button>
@@ -941,7 +939,6 @@ async function renderSchedulePublic() {
 // =========================================================
 //   АДМИН-ПАНЕЛЬ
 // =========================================================
-// Простая авторизация (для демонстрации)
 const ADMIN_CREDENTIALS = {
     username: 'admin',
     password: 'korovino2026'
@@ -1322,28 +1319,6 @@ async function clearAllMessages() {
         alert('Ошибка очистки сообщений');
     }
 }
-
-// =========================================================
-//   ФОРМА ОБРАЩЕНИЯ С САЙТА
-// =========================================================
-document.getElementById('contactForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const data = {
-        name: form.name.value.trim(),
-        phone: form.phone.value.trim(),
-        message: form.message.value.trim(),
-        read: false
-    };
-
-    try {
-        await addMessage(data);
-        form.reset();
-        alert('Спасибо! Ваше сообщение отправлено. Мы свяжемся с вами в ближайшее время.');
-    } catch (e) {
-        alert('Ошибка отправки сообщения. Попробуйте позже.');
-    }
-});
 
 // =========================================================
 //   ИНИЦИАЛИЗАЦИЯ
