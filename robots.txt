@@ -1,6 +1,0 @@
-# Разрешаем всем роботам сканировать сайт
-User-agent: *
-Allow: /
-
-# Указываем путь к карте сайта
-Sitemap: https://khram-korovino.github.io/Khram-korovino/sitemap.xml
